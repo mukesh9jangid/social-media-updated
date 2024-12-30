@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import { PostList } from "../store/post-list-store";
 
 const CreatePost = () => {
@@ -10,6 +10,19 @@ const CreatePost = () => {
   const reactionsElement = useRef();
   const tagsElement = useRef();
 
+  //
+  const [error, setError] = useState("");
+
+  const handleInput = (event) => {
+    const value = event.target.value;
+    // Allow only numbers and limit to two digits
+    if (!/^\d{0,2}$/.test(value)) {
+      event.target.value = value.slice(0, 2); // Trim input to 2 digits
+    }
+    setError(""); // Clear error on valid input
+  };
+  //
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const userId = userIdElement.current.value;
@@ -17,6 +30,13 @@ const CreatePost = () => {
     const postBody = postBodyElement.current.value;
     const reactions = reactionsElement.current.value;
     const tags = tagsElement.current.value.split(" ");
+
+    // Validate user ID before proceeding
+    if (!/^\d{2}$/.test(userId)) {
+      setError("User ID must be exactly two numeric digits.");
+      return;
+    }
+    //
 
     userIdElement.current.value = "";
     postTitleElement.current.value = "";
@@ -59,7 +79,10 @@ const CreatePost = () => {
           className="form-control"
           id="userId"
           placeholder="Your User Id"
+          onInput={handleInput}
         />
+
+        {error && <small className="text-danger">{error}</small>}
       </div>
 
       <div className="mb-3">
